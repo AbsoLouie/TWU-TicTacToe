@@ -1,7 +1,5 @@
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by lperez on 1/15/15.
@@ -9,43 +7,48 @@ import java.util.List;
 public class Board {
 
     private PrintStream printStream;
-    private String[] boardState = new String[]{" ", " ", " ", " ", " ", " ", " ", " ", " "};
+    private String[] cells;
     private final String boardFormat =  " %s | %s | %s \n" +
                                         "-----------\n" +
                                         " %s | %s | %s \n" +
                                         "-----------\n" +
                                         " %s | %s | %s \n";
 
-    public Board(PrintStream printStream) {
+    public Board(PrintStream printStream, String[] cells) {
         this.printStream = printStream;
+        this.cells = cells;
     }
 
     public void printBoard() {
-        printStream.println(String.format(boardFormat, boardState));
+        printStream.println(String.format(boardFormat, cells));
     }
 
     public void placePiece(int cellNumber, String gameSymbol) {
-        boardState[cellNumber] = gameSymbol;
+        cells[cellNumber] = gameSymbol;
     }
 
-    public boolean validateMove(int cellNumber) {
-        if (boardState[cellNumber] == " ") {
+    public boolean isCellEmpty(int cellNumber) {
+        return cells[cellNumber] == " ";
+    }
+
+    public boolean isFull() {
+        return !Arrays.asList(cells).contains(" ");
+    }
+
+    public boolean winnerDecided() {
+        if (aBoolean()) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean isGameOver() {
-        if (boardIsFilled()) {
-            return true;
-        } else {
-            return false;
-        }
+    private boolean aBoolean() {
+        return (!isCellEmpty(0) && cells[0] == cells[1] && cells[1] == cells[2] ||
+                !isCellEmpty(3) && cells[3] == cells[4] && cells[4] == cells[5] ||
+                !isCellEmpty(6) && cells[6] == cells[7] && cells[7] == cells[8]);
     }
 
-    private boolean boardIsFilled() {
-        return !Arrays.asList(boardState).contains(" ");
-    }
+
 }
 

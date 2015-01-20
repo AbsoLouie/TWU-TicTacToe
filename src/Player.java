@@ -23,15 +23,23 @@ public class Player {
     public void promptToPlay() throws IOException {
         printStream.println("Player " + playerName + " please make a move: ");
         Integer cellNumber = convertMove(bufferedReader.readLine());
-        if (board.validateMove(cellNumber)) {
+        if (board.isCellEmpty(cellNumber)) {
             board.placePiece(cellNumber, playerSymbol);
         } else {
-            printStream.println("Location already taken");
-            promptToPlay();
+            redoMove();
         }
+    }
+
+    private void redoMove() throws IOException {
+        printStream.println("Location already taken");
+        promptToPlay();
     }
 
     private Integer convertMove(String move) {
         return Integer.parseInt(move) - 1;
+    }
+
+    public String winMessage() {
+        return "Player " + playerName + " Wins!";
     }
 }

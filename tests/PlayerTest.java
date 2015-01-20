@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class PlayerTest {
@@ -26,7 +27,7 @@ public class PlayerTest {
     @Test
     public void shouldPromptPlayer1ToMakeAMove() throws IOException {
         when(bufferedReader.readLine()).thenReturn("1");
-        when(board.validateMove(0)).thenReturn(true);
+        when(board.isCellEmpty(0)).thenReturn(true);
         player1.promptToPlay();
         verify(printStream).println("Player 1 please make a move: ");
     }
@@ -34,7 +35,7 @@ public class PlayerTest {
     @Test
     public void shouldPlacePlayer1PieceOnBoard() throws IOException {
         when(bufferedReader.readLine()).thenReturn("1");
-        when(board.validateMove(0)).thenReturn(true);
+        when(board.isCellEmpty(0)).thenReturn(true);
         player1.promptToPlay();
         verify(board).placePiece(0, "X");
     }
@@ -42,7 +43,7 @@ public class PlayerTest {
     @Test
     public void shouldPromptPlayer2ToMakeAMove() throws IOException {
         when(bufferedReader.readLine()).thenReturn("1");
-        when(board.validateMove(0)).thenReturn(true);
+        when(board.isCellEmpty(0)).thenReturn(true);
         player2.promptToPlay();
         verify(printStream).println("Player 2 please make a move: ");
     }
@@ -50,17 +51,22 @@ public class PlayerTest {
     @Test
     public void shouldPlacePlayer2PieceOnBoard() throws IOException {
         when(bufferedReader.readLine()).thenReturn("1");
-        when(board.validateMove(0)).thenReturn(true);
+        when(board.isCellEmpty(0)).thenReturn(true);
         player2.promptToPlay();
         verify(board).placePiece(0, "O");
     }
 
     @Test
     public void shouldPromptPlayerForAnotherMoveIfMoveIsIllegal() throws IOException {
-        when(board.validateMove(0)).thenReturn(false).thenReturn(true);
+        when(board.isCellEmpty(0)).thenReturn(false).thenReturn(true);
         when(bufferedReader.readLine()).thenReturn("1");
         player1.promptToPlay();
         verify(printStream).println("Location already taken");
         verify(printStream, times(2)).println("Player 1 please make a move: ");
+    }
+
+    @Test
+    public void shouldGiveWinningPhrase() {
+        assertEquals("Player 1 Wins!", player1.winMessage());
     }
 }

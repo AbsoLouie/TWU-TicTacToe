@@ -1,4 +1,3 @@
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -9,28 +8,53 @@ public class Game {
 
     private PrintStream printStream;
     private Board board;
-    private BufferedReader bufferedReader;
     private Player player1;
     private Player player2;
+    private Player currentPlayer;
+    private Player waitingPlayer;
+    private String endGameMessage;
 
-    public Game(PrintStream printStream, Board board, BufferedReader bufferedReader, Player player1, Player player2) {
+    public Game(PrintStream printStream, Board board, Player player1, Player player2) {
         this.printStream = printStream;
         this.board = board;
-        this.bufferedReader = bufferedReader;
         this.player1 = player1;
         this.player2 = player2;
+        this.currentPlayer = this.player1;
+        this.waitingPlayer = this.player2;
     }
 
     public void start() throws IOException {
         board.printBoard();
-        while (!board.isGameOver()) {
-            player1.promptToPlay();
-            board.printBoard();
-            if (board.isGameOver()) {break;}
-            player2.promptToPlay();
-            board.printBoard();
-        }
-        printStream.println("The Game Is Over!");
+        do {
+            currentPlayerTakesTurn();
+        } while (gameIsActive());
+        printStream.println(endGameMessage);
     }
 
+    private boolean gameIsActive() {
+        if (board.winnerDecided()) {
+            endGameMessage = currentPlayer.winMessage();
+            return false;
+        } else if (board.isFull()) {
+            endGameMessage = "Game is a draw.";
+            return false;
+        } else {
+            changeCurrentPlayer();
+            return true;
+        }
+    }
+
+    // separate gameIsActive and changeCurrentPlayer and setting the endGameMessage.
+
+    private void currentPlayerTakesTurn() throws IOException {
+        currentPlayer.promptToPlay();
+
+        board.printBoard();
+    }
+
+    private void changeCurrentPlayer() {
+        Player temp = currentPlayer;
+        currentPlayer = waitingPlayer;
+        waitingPlayer = temp;
+    }
 }

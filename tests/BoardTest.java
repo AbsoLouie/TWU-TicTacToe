@@ -1,3 +1,4 @@
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -5,6 +6,8 @@ import java.io.PrintStream;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertFalse;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -12,15 +15,17 @@ public class BoardTest {
 
     private Board board;
     private PrintStream printStream;
+    private String[] cells;
 
     @Before
     public void setUp() throws Exception {
         printStream = mock(PrintStream.class);
-        board = new Board(printStream);
+        cells = new String[]{" ", " ", " ", " ", " ", " ", " ", " ", " "};
+        board = new Board(printStream, cells);
     }
 
     @Test
-    public void shouldPrintEmptyBoard(){
+    public void shouldPrintBoard(){
         board.printBoard();
         verify(printStream).println("   |   |   " + "\n" +
                                     "-----------" + "\n" +
@@ -31,10 +36,10 @@ public class BoardTest {
 
     @Test
     public void shouldPrintPlayedBoard(){
-        board.placePiece(0, "X");
-        board.placePiece(1, "O");
+        cells[0] = "*";
+        cells[1] = "#";
         board.printBoard();
-        verify(printStream).println(" X | O |   " + "\n" +
+        verify(printStream).println(" * | # |   " + "\n" +
                                     "-----------" + "\n" +
                                     "   |   |   " + "\n" +
                                     "-----------" + "\n" +
@@ -42,33 +47,58 @@ public class BoardTest {
     }
 
     @Test
-    public void shouldReturnTrueIfMoveIsLegal() {
-        assertTrue(board.validateMove(0));
+    public void shouldReturnTrueIfCellIsEmpty() {
+        assertTrue(board.isCellEmpty(0));
     }
 
     @Test
-    public void shouldReturnFalseIfMoveIsIllegal() {
-        board.placePiece(0, "X");
-        assertFalse(board.validateMove(0));
+    public void shouldReturnFalseIfCellIsNotEmpty() {
+        cells[0] = "*";
+        assertFalse(board.isCellEmpty(0));
     }
 
     @Test
-    public void shouldReturnFalseIfGameIsIncomplete() {
-        assertFalse(board.isGameOver());
+    public void shouldReturnFalseIfBoardHasUnfilledSpaces() {
+        assertFalse(board.isFull());
     }
 
     @Test
-    public void shouldReturnTrueIfGameIsComplete() {
-        board.placePiece(0, "O");
-        board.placePiece(1, "X");
-        board.placePiece(2, "O");
-        board.placePiece(3, "X");
-        board.placePiece(4, "X");
-        board.placePiece(5, "O");
-        board.placePiece(6, "X");
-        board.placePiece(7, "O");
-        board.placePiece(8, "X");
-        assertTrue(board.isGameOver());
+    public void shouldReturnTrueIfBoardIsFull() {
+        for(Integer i = 0; i < 9; i++) {
+            cells[i] = "*";
+        }
+        assertTrue(board.isFull());
     }
+
+    @Test
+    public void shouldReturnFalseWhenWinnerIsNotDecided() {
+        assertFalse(board.winnerDecided());
+    }
+
+    @Test
+    public void shouldReturnTrueWhenTopRowWinIsAchieved() {
+        cells[0] = "*";
+        cells[1] = "*";
+        cells[2] = "*";
+        assertTrue(board.winnerDecided());
+    }
+
+    @Test
+    public void shouldReturnTrueWhenMiddleRowWinIsAchieved() {
+        cells[3] = "*";
+        cells[4] = "*";
+        cells[5] = "*";
+        assertTrue(board.winnerDecided());
+    }
+
+    @Test
+    public void shouldReturnTrueWhenBottomRowWinIsAchieved() {
+        cells[6] = "*";
+        cells[7] = "*";
+        cells[8] = "*";
+        assertTrue(board.winnerDecided());
+    }
+
+
 
 }

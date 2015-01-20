@@ -23,42 +23,54 @@ public class GameTest {
         bufferedReader = mock(BufferedReader.class);
         player1 = mock(Player.class);
         player2 = mock(Player.class);
-        game = new Game(printStream, board, bufferedReader, player1, player2);
+        game = new Game(printStream, board, player1, player2);
+        when(board.isFull()).thenReturn(false).thenReturn(false).thenReturn(true);
+        when(board.winnerDecided()).thenReturn(false);
     }
 
     @Test
     public void shouldPromptPlayer1ToPlay() throws IOException {
-        when(board.isGameOver()).thenReturn(false).thenReturn(true);
         game.start();
-        verify(player1).promptToPlay();
+        verify(player1, atLeastOnce()).promptToPlay();
     }
 
     @Test
     public void shouldPromptPlayer2ToPlay() throws IOException {
-        when(board.isGameOver()).thenReturn(false).thenReturn(false).thenReturn(true);
         game.start();
-        verify(player2).promptToPlay();
+        verify(player2, atLeastOnce()).promptToPlay();
     }
 
     @Test
-    public void shouldEndGameIfBoardIsFilled() throws IOException {
-        when(board.isGameOver()).thenReturn(true);
+    public void shouldEndGameInADrawIfBoardIsFilled() throws IOException {
         game.start();
-        verify(printStream).println("The Game Is Over!");
+        verify(printStream).println("Game is a draw.");
     }
 
     @Test
     public void shouldLoopUntilGameIsOver() throws IOException {
-        for (Integer i = 1; i < 10; i++) {
-            when(bufferedReader.readLine()).thenReturn(Integer.toString(i));
-            if (i < 9 ) {
-                when(board.isGameOver()).thenReturn(false);
-            } else {
-                when(board.isGameOver()).thenReturn(true);
-            }
-        }
+        when(board.isFull()).thenReturn(false).thenReturn(false).thenReturn(true);
+        when(board.winnerDecided()).thenReturn(false);
         game.start();
-        verify(printStream).println("The Game Is Over!");
+        verify(player1, atLeast(2)).promptToPlay();
+    }
+
+    @Test
+    public void shouldCheckForWinAfterEveryMove() throws IOException {
+        game.start();
+        verify(board, atLeastOnce()).winnerDecided();
+    }
+
+    @Test
+    public void shouldAnnounceWhenWinnerIsDecided() throws IOException {
+        when(board.winnerDecided()).thenReturn(true);
+        game.start();
+        verify(player1).winMessage();
+    }
+
+    @Test
+    public void shouldNotAnnounceWhenWinnerIsNotDecided() throws IOException {
+        game.start();
+        verify(printStream).println("Game is a draw.");
     }
 
 }
